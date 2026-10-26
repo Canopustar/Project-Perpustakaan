@@ -23,7 +23,11 @@ Route::middleware('guest')->group(function () {
 });
 
 // Route untuk Logout (Ini yang wajib ditambahkan)
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+});
 
 Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -62,4 +66,10 @@ Route::middleware(['auth', 'isMember'])->group(function () {
         Route::post('simpan-booking', [TempController::class, 'simpanBooking'])->name('simpanBooking');
         Route::get('booking-pdf/{user}', [BookingController::class, 'bookingPdf'])->name('bookingPdf');
     });
+});
+
+Route::prefix('admin/transaksi')->name('admin.transaksi.')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::resource('booking', BookingController::class);
+    Route::resource('peminjaman', PinjamController::class);
+    Route::get('pengembalian', [PinjamController::class, 'pengembalian_index'])->name('peminjaman.pengembalian');
 });
